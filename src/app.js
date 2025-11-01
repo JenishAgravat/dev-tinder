@@ -2,12 +2,20 @@ const express=require("express");
 
 const app=express();
 
-// app.use("/",(req,res)=>{
-//     res.send("Namste Node");
-// });
+app.get("/user",(req,res,next)=>{
+    const token="abc";
+    const isadminauthorized=token=="abc";
 
-app.use("/hello",(req,res)=>{
-    res.send("hello Node");
+    if(!isadminauthorized){
+        res.status(401).send("unauthorized Request");
+    }
+    else{
+        next();
+    }
+});
+
+app.get("/user",(req,res)=>{
+    res.send("Data sent ...");
 });
 
 app.use("/test",(req,res)=>{
