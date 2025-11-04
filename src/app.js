@@ -1,6 +1,7 @@
 const express = require("express");
 const connectdb = require("./config/database");
 const User = require("./models/user");
+const { ReturnDocument } = require("mongodb");
 const app = express();
 
 app.use(express.json());
@@ -49,15 +50,24 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-app.patch("/user", async(req,res)=>{
-        const userId=req.body.userId;
-        const data=req.body;
-        console.log(data);
+app.patch("/user/:userId", async(req,res)=>{
+        const userId=req.params?.userId;
+        const data=req.body;    
         try{
-                await User.findByIdAndUpdate(userId,data);
+           const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills","userId"]
+
+        const isUpdateAllowed=Object.keys(data).every((k)=>ALLOWED_UPDATES.includes(k));
+        if(!isUpdateAllowed){
+            throw new Error("Update Not Allow");
+        }
+        if(data.skills.length>10){
+          throw new Error("skill cannot be more than 10");
+        }
+                const user=await User.findByIdAndUpdate(userId,data,{returnDocument:"after",runValidators:true});
+             
                 res.send("user updated successfully");
         }catch (err) {
-    res.status(400).send("something went wrong");
+    res.status(400).send("Update Failed" + err.message);
   }
 });
 
