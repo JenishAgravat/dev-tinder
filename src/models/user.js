@@ -44,12 +44,12 @@ const userSchema=new mongoose.Schema({
     },
     photoUrl:{
         type:String,
-        default:"",
-          validate(value){
-            if(!validator.isURL(value)){
-                throw new Error("invalid image url: " + value);
-            }
-        }
+        // default:"",
+        //   validate(value){
+        //     if(!validator.isURL(value)){
+        //         throw new Error("invalid image url: " + value);
+        //     }
+        // }
     },
     about:{
         type:String,

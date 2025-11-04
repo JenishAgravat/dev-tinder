@@ -2,13 +2,30 @@ const express = require("express");
 const connectdb = require("./config/database");
 const User = require("./models/user");
 const { ReturnDocument } = require("mongodb");
+const { validatesignUpData } = require("./utils/validation");
 const app = express();
+const bcrypt=require("bcrypt");
 
 app.use(express.json());
 
 app.post("/signUp", async (req, res) => {
-  const user = new User(req.body);
   try {
+    //validation signup data
+    validatesignUpData(req);
+    //encrypt password
+    const{firstName,lastName,emaiId,password}=req.body;
+   
+    const passwordHash=await bcrypt.hash(password,10);
+    console.log(passwordHash);
+
+    //creating a new user instance
+    const user = new User({
+      firstName,
+      lastName,
+      emaiId,
+      password:passwordHash,
+    });
+  
     await user.save();
     res.send("user inserted successfully...");
   } catch (err) {
@@ -16,10 +33,31 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
+app.post("/login",async(req,res)=>{
+  try{
+    const {emaiId,password}=req.body;
+
+    const user= await User.findOne({emaiId:emaiId});
+    if(!user){
+      throw new Error("invalid credtinals");
+    }
+    const isPasswordValid= await bcrypt.compare(password,user.password);
+    if(isPasswordValid){
+      res.send("login successfully...");
+    }
+    else{
+      throw new Error("invalid credtinals");
+    }
+
+  }catch (err) {
+    res.status(400).send("error saving user:" + err.message);
+  }
+});
+
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
   try {
-    const users = await User.find({ emaiId: userEmail });
+    const users = await User.find({ emailId: userEmail });
     if (users.length === 0) {
       res.status(404).send("user not found");
     } else {
