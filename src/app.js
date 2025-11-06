@@ -2,78 +2,23 @@ const express = require("express");
 const connectdb = require("./config/database");
 const User = require("./models/user");
 const { ReturnDocument } = require("mongodb");
-const { validatesignUpData } = require("./utils/validation");
+
 const app = express();
-const bcrypt = require("bcrypt");
+
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const{userAuth}=require("./middlewares/auth");
+
+const authRouter=require("./routers/auth");
+const profileRouter=require("./routers/profile");
+const requestRouter=require("./routers/request");
+
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.post("/signUp", async (req, res) => {
-  try {
-    //validation signup data
-    validatesignUpData(req);
-    //encrypt password
-    const { firstName, lastName, emaiId, password } = req.body;
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
-
-    //creating a new user instance
-    const user = new User({
-      firstName,
-      lastName,
-      emaiId,
-      password: passwordHash,
-    });
-
-    await user.save();
-    res.send("user inserted successfully...");
-  } catch (err) {
-    res.status(400).send("error saving user:" + err.message);
-  }
-});
-
-app.post("/login", async (req, res) => {
-  try {
-    const { emaiId, password } = req.body;
-
-    const user = await User.findOne({ emaiId: emaiId });
-    if (!user) {
-      throw new Error("invalid credtinals");
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (isPasswordValid) {
-      const token = await user.getJWT();
-
-      res.cookie("token", token);
-      res.send("login successfully...");
-    } else {
-      throw new Error("invalid credtinals");
-    }
-  } catch (err) {
-    res.status(400).send("error saving user:" + err.message);
-  }
-});
-
-app.get("/profile",userAuth, async (req, res) => {
-  try {
-    
-    const user = req.user;
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("ERROR: " + err.message);
-  }
-});
-
- app.post("/sendConnectionRequest",userAuth,async(req,res)=>{
-  const user=req.user;
-
-  res.send(user.firstName + (" sent a connection request"));
-});
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
 
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;

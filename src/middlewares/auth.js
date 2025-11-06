@@ -4,10 +4,10 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
-    if (!token) {
+    if (!token) {   
       throw new Error("Token is not valid....");
     }
-    const decodedobj = await jwt.verify(token, "DEV@Tinder$111");
+    const decodedobj = jwt.verify(token, "DEV@Tinder$111");
 
     const { _id } = decodedobj;
 
