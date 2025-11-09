@@ -61,13 +61,18 @@ const userSchema=new mongoose.Schema({
     },
 },{timestamps:true,});
 
-userSchema.method.getJWT=async function(){
-    const user=this;
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$111");
+  return token;
+};
+// userSchema.methods.getJWT=async function(){
+//     const user=this;
 
-    const token=await jwt.sign({ _id: user._id }, "DEV@Tinder$111" , {expiresIn:"7d"});
-    
-    return token;
-}
+//     const token=jwt.sign({ _id: user._id }, "DEV@Tinder$111" , {expiresIn:"7d"});
+//     console.log(token);
+//     return token;
+// }
 
 const User = mongoose.model("User",userSchema);
 

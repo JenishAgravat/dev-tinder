@@ -40,7 +40,7 @@ authRouter.post("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      const token = await user.getJWT;
+      const token = await user.getJWT();
 
       res.cookie("token", token);
       res.send("login successfully...");
@@ -50,6 +50,13 @@ authRouter.post("/login", async (req, res) => {
   } catch (err) {
     res.status(400).send("error saving user:" + err.message);
   }
+});
+
+authRouter.post("/logout",async(req,res)=>{
+  res.cookie("token",null,{
+    expires:new Date(Date.now()),
+  })
+  res.send("Logout successfull ")
 });
 
 module.exports=authRouter;
