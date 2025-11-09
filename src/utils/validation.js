@@ -14,13 +14,14 @@ const validatesignUpData=(req)=>{
 };
 
 const validateEditProfileData=(req)=>{
-    const alloeEditFields=["firstName","lastName","emiId","photoUel","gender","age","skills"];
+    const alloeEditFields=["firstName","lastName","emiId","photoUrl","gender","age","skills","about"];
 
-    const isEditAllowed=Object.keys(req.body).every(field=>alloeEditFields.includes(field));
+    const isEditAllowed=Object.keys(req.body).every((field)=>alloeEditFields.includes(field));
 
     return isEditAllowed;
 }
 
 module.exports={
     validatesignUpData,
+    validateEditProfileData
 };
