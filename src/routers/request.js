@@ -50,4 +50,35 @@ try{
 }
 });
 
+requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
+  try{
+    const loggedInUser=req.user;
+    const {status,requestId}=req.params;
+    //status validate
+    const allowedStatus=["accepted","rejected"];
+    if(!allowedStatus.includes(status)){
+      return res.status(400).json({message:"Status Not Allowed!"});
+    }
+
+    const connectionRequest=await ConnectionRequest.findOne({
+      _id:requestId,
+      toUserId:loggedInUser._id,
+      status:"interested",
+    });
+    if(!connectionRequest){
+      return res.status(404).json({message:"Connection Request Not Found"});
+    }
+
+    //cahnge and save status
+    connectionRequest.status=status;
+
+    const data=await connectionRequest.save();
+
+    res.json({message:"connection request "+ status,data});
+
+  }catch(err){
+    res.status(400).send("ERROR: "  + err.message);
+  }
+});
+
 module.exports=requestRouter;
