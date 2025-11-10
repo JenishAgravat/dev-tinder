@@ -37,15 +37,6 @@ app.get("/user", async (req, res) => {
   }
 });
 
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (err) {
-    res.status(400).send("something went wrong");
-  }
-});
-
 app.delete("/user", async (req, res) => {
   const userId = req.body.userId;
   try {
